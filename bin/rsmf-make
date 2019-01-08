@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+export RSMF_HOME="${RSMF_HOME:-/opt/rdbms-schema-migration-framework}"
+export RSMF_LIB_PATH=$RSMF_HOME/lib
+
+make -f $RSMF_LIB_PATH/Makefile $@

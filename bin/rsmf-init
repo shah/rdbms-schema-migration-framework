@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Initialize a RSMF-managed directory with a defn file from github.com/shah/rsmf-migrations-defns
+#     mkdir <migration-name>
+#     cd <migration-name>
+#     rsmf-init <migration-name>
+
+if [ -z "$1" ]; then
+    echo "A RSMF jsonnet migration definition identifier was expected as the first parameter."
+    exit 1
+fi
+
+RSMF_HOME="${RSMF_HOME:-/opt/rdbms-schema-migration-framework}"
+RSMF_LIB_PATH=$RSMF_HOME/lib
+
+RSMF_MIGRATION_DEFN_REPO_URL=https://raw.githubusercontent.com/shah/rsmf-migration-defns/master/
+RSMF_MIGRATION_DEFN_URL=$RSMF_MIGRATION_DEFN_REPO_URL/$1.rsmf-defn.jsonnet
+curl -s --head $RSMF_MIGRATION_DEFN_URL | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null
+if [ $? = 1 ]; then
+    echo "RSMF jsonnet migration definition file $RSMF_MIGRATION_DEFN_URL not found."
+    exit 2
+fi
+
+curl -s $RSMF_MIGRATION_DEFN_URL > migration.rsmf-defn.jsonnet
+curl -f -O -J -s $RSMF_MIGRATION_DEFN_REPO_URL/etc/open/$1.rsmf-conf.jsonnet
+curl -f -O -J -s $RSMF_MIGRATION_DEFN_REPO_URL/etc/secrets-samples/$1.secrets.rsmf-conf.jsonnet
+
+ln -s $RSMF_LIB_PATH/Makefile .
+ls -al .
