@@ -49,7 +49,7 @@ define logInfo
 	fi
 endef
 
-default: inspect
+default: configure
 
 .ONESHELL:
 pre-configure:

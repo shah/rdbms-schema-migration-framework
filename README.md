@@ -1,7 +1,7 @@
 # Relational Database Management System (RDBMS) Schema Migration Framework (RSMF)
 
 The **Relational Database Management System (RDBMS) Schema Migration Framework** (**RSMF**) is an opionated approach to generating RDBMS
-schema migration files that can then be loaded as SQL files into any relational data storage engine.
+[schema migration](https://en.wikipedia.org/wiki/Schema_migration) files that can then be loaded as SQL files into any relational data storage engine.
 
 RSMF uses [Jsonnet](https://jsonnet.org/) as the core configuration language and generates appropriate
 SQL, schell scripts, and related artifacts.
