@@ -62,9 +62,9 @@ local DIALECT_DEFAULT = 'ansi';
 
 	createSQLValue(value)::
 		if std.isBoolean(value) then
-			value
+			'' + value
 		else if std.isNumber(value) then
-			value
+			'' + value
 		else 
 			std.escapeStringJson(value),
 
