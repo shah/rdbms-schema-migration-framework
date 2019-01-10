@@ -134,7 +134,7 @@ JSONNET_INSTALLED := $(shell command -v jsonnet 2> /dev/null)
 check-jsonnet:
 ifndef JSONNET_INSTALLED
 	echo "[ ] Did not find jsonnet, run this to set it up:"
-	echo "    sudo ln -s /opt/rdbms-schema-migration-framework/bin/jsonnet-v0.11.2 /usr/bin/jsonnet"
+	echo "    sudo ln -s $(RSMF_HOME)/bin/jsonnet-v0.11.2 /usr/bin/jsonnet"
 else
 	printf "[*] "
 	jsonnet --version
