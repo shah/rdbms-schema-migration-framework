@@ -2,11 +2,11 @@ local DIALECT_DEFAULT = 'ansi';
 
 {
 	columnTypes : {
-		identity(name = 'id', required = true) : { 
+		identity(name = 'id') : { 
 			name: name, 
 			notNull: true, 
 			sqlType(dialect = DIALECT_DEFAULT): "SERIAL",
-			columnSqlForCreateTable(dialect = DIALECT_DEFAULT): "%(name)s SERIAL PRIMARY KEY%(required)s" % {name : name, required: if required then ' NOT NULL' else ''},
+			columnSqlForCreateTable(dialect = DIALECT_DEFAULT): "%(name)s INTEGER PRIMARY KEY AUTOINCREMENT" % { name : name },
 		},
 		text(name, size = 255, required = false) : { 
 			name: name, 
