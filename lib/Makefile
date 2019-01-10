@@ -125,7 +125,7 @@ migrate: configure
 clean: clean-generated-migration-conf
 
 ## See if all developer dependencies are installed
-check-dependencies: check-jsonnet check-jq check-osquery
+check-dependencies: check-jsonnet check-jq check-osquery check-sqlite
 	printf "[*] "
 	make -v | head -1
 	echo "[*] Shell: $$SHELL"
@@ -148,6 +148,24 @@ ifndef JQ_INSTALLED
 else
 	printf "[*] "
 	jq --version
+endif
+
+SQLITE_INSTALLED := $(shell command -v sqlite 2> /dev/null)
+SQLITE3_INSTALLED := $(shell command -v sqlite3 2> /dev/null)
+check-sqlite:
+ifndef SQLITE_INSTALLED
+	echo "[ ] Did not find sqlite, install using:"
+	echo "    sudo apt-get install sqlite"
+else
+	printf "[*] SQLite "
+	sqlite -version
+endif
+ifndef SQLITE3_INSTALLED
+	echo "[ ] Did not find sqlite3, install using:"
+	echo "    sudo apt-get install sqlite3"
+else
+	printf "[*] SQLite3 "
+	sqlite3 -version
 endif
 
 OSQUERY_INSTALLED := $(shell command -v osqueryi 2> /dev/null)
