@@ -6,6 +6,10 @@ The **Relational Database Management System (RDBMS) Schema Migration Framework**
 RSMF uses [Jsonnet](https://jsonnet.org/) as the core configuration language and generates appropriate
 SQL, schell scripts, and related artifacts.
 
+Limitations:
+
+* Only SQLite has been tested, but other database dialects will be possible using the framework.
+
 Prerequisites:
 
 * Linux server, tested only on Ubuntun 18.04
