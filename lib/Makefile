@@ -27,7 +27,6 @@ DELETE_GENERATED_FILES_SCRIPT := .rsmf_delete_generated_files.sh
 
 CUSTOM_PRE_CONFIGURE_SCRIPT_NAME := ./before_configure.make-plugin.sh
 CUSTOM_POST_CONFIGURE_SCRIPT_NAME := ./after_configure.make-plugin.sh
-CUSTOM_POST_START_SCRIPT_NAME := ./after_start.make-plugin.sh
 CUSTOM_INCLUDE_FILE := ./migration.make.inc
 
 # This is the "environment facts bootstrap" script which figures out what's in the
@@ -37,10 +36,14 @@ RSMF_FACTS_GENERATOR_SCRIPT ?= $(RSMF_HOME)/bin/generate-rsmf-facts.sh
 RSMF_FACTS_DEST_PATH ?= $(MIGRATION_DEFN_HOME)/.rsmf_facts
 RSMF_FACTS_DEST_PATH_RELATIVE ?= $(shell realpath --relative-to=$(MIGRATION_DEFN_HOME) $(RSMF_FACTS_DEST_PATH))
 
-GREEN  := $(shell tput -Txterm setaf 2)
-YELLOW := $(shell tput -Txterm setaf 3)
-WHITE  := $(shell tput -Txterm setaf 7)
-RESET  := $(shell tput -Txterm sgr0)
+OSQUERY_CONFIG_PATH ?= /etc/osquery/osquery.conf
+OSQUERY_CONFIG_D_PATH ?= /etc/osquery/osquery.conf.d
+
+GREEN    := $(shell tput -Txterm setaf 2)
+YELLOW   := $(shell tput -Txterm setaf 3)
+WHITE    := $(shell tput -Txterm setaf 7)
+RESET    := $(shell tput -Txterm sgr0)
+REDFLASH := $(shell tput -Txterm setaf 4)
 
 comma := ,
 define logInfo
@@ -49,7 +52,7 @@ define logInfo
 	fi
 endef
 
-default: configure
+default: help
 
 .ONESHELL:
 pre-configure:
@@ -64,7 +67,13 @@ pre-configure:
 generate-facts: pre-configure
 	$(call logInfo,Running $(GREEN)$(RSMF_FACTS_GENERATOR_SCRIPT)$(RESET)$(comma) dest $(YELLOW)$(RSMF_FACTS_DEST_PATH_RELATIVE)$(RESET))
 	RSMF_VERSION=$(RSMF_VERSION) RSMF_HOME=$(RSMF_HOME) RSMF_FACTS_FILES=$(RSMF_FACTS_FILES) RSMF_LOG=$(RSMF_LOG) \
-	    MIGRATION_DEFN_HOME=$(MIGRATION_DEFN_HOME) MIGRATION_NAME=$(MIGRATION_NAME) RDBMS_ENGINE_TARGET=$(RDBMS_ENGINE_TARGET) \
+	    MIGRATION_DEFN_HOME=$(MIGRATION_DEFN_HOME) MIGRATION_NAME=$(MIGRATION_NAME) \
+		RDBMS_ENGINE_TARGET=$(RDBMS_ENGINE_TARGET) RDBMS_DIALECT_TARGET=$(RDBMS_DIALECT_TARGET) \
+		MAKEFILE_CUSTOM_PRE_CONFIGURE_SCRIPT_NAME=$(CUSTOM_PRE_CONFIGURE_SCRIPT_NAME) \
+		MAKEFILE_CUSTOM_POST_CONFIGURE_SCRIPT_NAME=$(CUSTOM_POST_CONFIGURE_SCRIPT_NAME) \
+		MAKEFILE_CUSTOM_INCLUDE_FILE=$(CUSTOM_INCLUDE_FILE) \
+		OSQUERY_CONFIG_PATH=$(OSQUERY_CONFIG_PATH) \
+		OSQUERY_CONFIG_D_PATH=$(OSQUERY_CONFIG_D_PATH) \
 	    JSONNET_PATH="$(JSONNET_PATH)" DEST_PATH=$(RSMF_FACTS_DEST_PATH) \
 		bash $(RSMF_FACTS_GENERATOR_SCRIPT)
 
@@ -106,47 +115,31 @@ configure: generate-migration-conf
 	fi
 
 ## Opposite of configure, remove all generated artifacts and "reset" directory
-unconfigure: clean-generated-migration-conf
-
-## Run unconfigure and then configure (clean and re-create)
-reconfigure: unconfigure configure
-
-.ONESHELL:
-## Start the migration and all dependencies
-migrate: configure
-	docker-compose up -d --force-recreate
-	if [ -f $(CUSTOM_POST_START_SCRIPT_NAME) ]; then
-		$(call logInfo,Found custom start script $(CUSTOM_POST_START_SCRIPT_NAME) for $(MIGRATION_NAME))
-		sudo chmod +x $(CUSTOM_POST_START_SCRIPT_NAME)
-		$(CUSTOM_POST_START_SCRIPT_NAME) $(MIGRATION_NAME)
-	fi
-
-## Stop the migration and clean up generated files
 clean: clean-generated-migration-conf
 
 ## See if all developer dependencies are installed
 check-dependencies: check-jsonnet check-jq check-osquery check-sqlite
-	printf "[*] "
+	printf "$(GREEN)[*]$(RESET) "
 	make -v | head -1
-	echo "[*] Shell: $$SHELL"
+	echo "$(GREEN)[*]$(RESET) Shell: $$SHELL"
 
 JSONNET_INSTALLED := $(shell command -v jsonnet 2> /dev/null)
 check-jsonnet:
 ifndef JSONNET_INSTALLED
-	echo "[ ] Did not find jsonnet, run this to set it up:"
+	echo "$(REDFLASH)[ ]$(RESET) Did not find jsonnet, run this to set it up:"
 	echo "    sudo ln -s $(RSMF_HOME)/bin/jsonnet-v0.11.2 /usr/bin/jsonnet"
 else
-	printf "[*] "
+	printf "$(GREEN)[*]$(RESET) "
 	jsonnet --version
 endif
 
 JQ_INSTALLED := $(shell command -v jq 2> /dev/null)
 check-jq:
 ifndef JQ_INSTALLED
-	echo "[ ] Did not find jq, install using:"
+	echo "$(REDFLASH)[ ]$(RESET) Did not find jq, install using:"
 	echo "    sudo apt-get install jq"
 else
-	printf "[*] "
+	printf "$(GREEN)[*]$(RESET) "
 	jq --version
 endif
 
@@ -154,27 +147,31 @@ SQLITE_INSTALLED := $(shell command -v sqlite 2> /dev/null)
 SQLITE3_INSTALLED := $(shell command -v sqlite3 2> /dev/null)
 check-sqlite:
 ifndef SQLITE_INSTALLED
-	echo "[ ] Did not find sqlite, install using:"
+	echo "$(REDFLASH)[ ]$(RESET) Did not find sqlite, install using:"
 	echo "    sudo apt-get install sqlite"
 else
-	printf "[*] SQLite "
+	printf "$(GREEN)[*]$(RESET) SQLite "
 	sqlite -version
 endif
 ifndef SQLITE3_INSTALLED
-	echo "[ ] Did not find sqlite3, install using:"
+	echo "$(REDFLASH)[ ]$(RESET) Did not find sqlite3, install using:"
 	echo "    sudo apt-get install sqlite3"
 else
-	printf "[*] SQLite3 "
+	printf "$(GREEN)[*]$(RESET) SQLite3 "
 	sqlite3 -version
 endif
 
-OSQUERY_INSTALLED := $(shell command -v osqueryi 2> /dev/null)
+OSQUERY_INSTALLED := $(shell command -v osqueryd 2> /dev/null)
 check-osquery: 
 ifndef OSQUERY_INSTALLED
-	echo "[ ] Unable to find osquery, install it from https://osquery.io/downloads/official."
+	echo "$(REDFLASH)[ ]$(RESET) Unable to find osquery, install it from https://osquery.io/downloads/official."
 else
-	printf "[*] "
+	printf "$(GREEN)[*]$(RESET) "
+	osqueryd --version
+	printf "    $(GREEN)[*]$(RESET) "
 	osqueryi --version
+	if [ -d $(OSQUERY_CONFIG_PATH) ]; then echo "    $(GREEN)[*]$(RESET) $(OSQUERY_CONFIG_PATH) exists"; else echo "    $(REDFLASH)[ ]$(RESET) $(OSQUERY_CONFIG_PATH) does not exist, please setup"; fi
+	if [ -d $(OSQUERY_CONFIG_D_PATH) ]; then echo "    $(GREEN)[*]$(RESET) $(OSQUERY_CONFIG_D_PATH) exists"; else printf "    $(REDFLASH)[ ]$(RESET) $(OSQUERY_CONFIG_D_PATH) does not exist, please create directory using:\n        $(YELLOW)sudo mkdir -p $(OSQUERY_CONFIG_D_PATH)$(RESET)\n"; fi
 endif
 
 TARGET_MAX_CHAR_NUM=15
