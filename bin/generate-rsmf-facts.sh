@@ -6,8 +6,15 @@
 # RSMF_HOME
 # RSMF_LOG_LEVEL
 # RSMF_FACTS_FILES
+# RDBMS_ENGINE_TARGET
+# RDBMS_DIALECT_TARGET
 # MIGRATION_DEFN_HOME
 # MIGRATION_NAME
+# MAKEFILE_CUSTOM_PRE_CONFIGURE_SCRIPT_NAME
+# MAKEFILE_CUSTOM_POST_CONFIGURE_SCRIPT_NAME
+# MAKEFILE_CUSTOM_INCLUDE_FILE
+# OSQUERY_CONFIG_PATH
+# OSQUERY_CONFIG_D_PATH
 # JSONNET_PATH
 # DEST_PATH
 
@@ -82,6 +89,12 @@ jsonnet --ext-str RSMF_VERSION=$RSMF_VERSION \
 		--ext-str migrationName=$MIGRATION_NAME \
 		--ext-str migrationDefnHome=$MIGRATION_DEFN_HOME \
 		--ext-str rdbmsEngineTarget=$RDBMS_ENGINE_TARGET  \
+		--ext-str rdbmsDialectTarget=$RDBMS_DIALECT_TARGET  \
+		--ext-str makeFileCustomPreConfigureScriptName=$MAKEFILE_CUSTOM_PRE_CONFIGURE_SCRIPT_NAME \
+		--ext-str makeFileCustomPostConfigureScriptName=$MAKEFILE_CUSTOM_POST_CONFIGURE_SCRIPT_NAME \
+		--ext-str makeFileCustomTargetsIncludeFile=$MAKEFILE_CUSTOM_INCLUDE_FILE \
+		--ext-str osQueryConfigPath=$OSQUERY_CONFIG_PATH \
+		--ext-str osQueryConfigDPath=$OSQUERY_CONFIG_D_PATH \
 		--ext-str currentUserName="`whoami`" \
 		--ext-str currentUserId="`id -u`" \
 		--ext-str currentUserGroupId="id -g" \
