@@ -1,7 +1,8 @@
 # Relational Database Management System (RDBMS) Schema Migration Framework (RSMF)
 
 The **Relational Database Management System (RDBMS) Schema Migration Framework** (**RSMF**) is an opionated approach to generating RDBMS
-[schema migration](https://en.wikipedia.org/wiki/Schema_migration) files that can then be loaded as SQL files into any relational data storage engine.
+[schema migration](https://en.wikipedia.org/wiki/Schema_migration) files that can then be loaded as SQL files into any relational data 
+storage engine (and dialect).
 
 RSMF uses [Jsonnet](https://jsonnet.org/) as the core configuration language and generates appropriate
 SQL, schell scripts, and related artifacts.
@@ -131,8 +132,8 @@ these housekeeping files:
 ## Facts Generator
 
 Before the migration.rsmf-defn.jsonnet file is interpreted, there are a series of "facts generator" scripts that
-can be run to pre-populate configuration entries from the environment or an existing database engine. Facts can be 
-retrieved from osquery, from the environment, or as arbitrary shell scripts snippets.
+can be run to pre-populate configuration entries from the environment or an existing database engine (dialect). 
+Facts can be retrieved from osquery, from the environment, or as arbitrary shell scripts snippets.
 
 The Makefile uses this script by default, but it can be overridden:
 
