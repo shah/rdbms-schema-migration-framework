@@ -10,9 +10,24 @@
 	GENERATED_ON : std.extVar('GENERATED_ON'),
 	JSONNET_PATH : std.extVar('JSONNET_PATH'),
 
+	makeFile : {
+		customPreConfigureScriptName : std.extVar('makeFileCustomPreConfigureScriptName'),
+		customPostConfigureScriptName : std.extVar('makeFileCustomPostConfigureScriptName'),
+		customTargetsIncludeFile : std.extVar('makeFileCustomTargetsIncludeFile'),
+	},
+
 	migrationName : std.extVar('migrationName'),
 	migrationDefnHome : std.extVar('migrationDefnHome'),
-	rdbmsEngineTarget : std.extVar('rdbmsEngineTarget'),
+
+	rdbms : {
+		engineTarget : std.extVar('rdbmsEngineTarget'),
+		dialectTarget : std.extVar('rdbmsDialectTarget'),
+	},
+
+	osQuery : {
+		configPath : std.extVar('osQueryConfigPath'),
+		configDPath : std.extVar('osQueryConfigDPath'),
+	},
 
 	currentUser : {
 		name : std.extVar('currentUserName'),
