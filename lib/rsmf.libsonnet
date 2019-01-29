@@ -19,6 +19,11 @@ local DIALECT_DEFAULT = 'ansi';
 			notNull: required, 
 			columnSqlForCreateTable(dialect = DIALECT_DEFAULT): "%(name)s INTEGER%(required)s" % {name : name, required: if required then ' NOT NULL' else ''},
 		},
+                datetime(name, required = false) : {
+                        name: name,
+                        notNull: required,
+                        columnSqlForCreateTable(dialect = DIALECT_DEFAULT): "%(name)s DATETIME%(required)s" % {name : name, required: if required then ' NOT NULL' else ''},
+                },
 		enum(enumName, name = enumName + "_id", required = false) : {
 			name : name,
 			enumName : enumName,
